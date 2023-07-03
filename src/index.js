@@ -10,12 +10,9 @@ config()
 const url = 'https://cre-api.kufar.by/ads-search/v1/engine/v1/search/rendered-paginated?' +
   'cat=1010&size=20&lang=ru&rgn=2&sort=lst.d&typ=let'
 
-const urlLast = 'https://cre-api.kufar.by/ads-search/v1/engine/v1/search/rendered-paginated?' +
-  'cat=1010&size=1&lang=ru&rgn=2&sort=lst.d&typ=let'
-
 async function makeRequest() {
   try {
-    const response = await axios.get(url);
+    const response = await axios.get(url)
     const rooms = (await response.data).ads
 
     let fileContent = fs.readFileSync("last.json", "utf8");
