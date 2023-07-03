@@ -87,6 +87,9 @@ bot.onText(/\/boost/, async (msg) => {
 bot.onText(/\/last/, async (msg) => {
   const chatId = msg.chat.id;
   const lastRoom = fs.readFileSync("lastRoom.json", "utf8");
+  if(!lastRoom) {
+    await helpSendMessage(chatId, "Последней квартиры ещё нет")
+  }
   await helpSendMessage(chatId, helpBuildString(...helpRoom(JSON.parse(lastRoom)))
   )
 })
