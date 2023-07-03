@@ -12,6 +12,10 @@ export const COMMANDS = [
     description: "Посмотреть последние квартиры"
   },
   {
+    command: "last",
+    description: "Последняя найденная квартира"
+  },
+  {
     command: "donat",
     description: "Раздел помощи разработчику"
   },

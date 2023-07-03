@@ -15,6 +15,8 @@ async function makeRequest() {
     const response = await axios.get(url)
     const rooms = (await response.data).ads
 
+    fs.writeFileSync("lastRoom.json", JSON.stringify(rooms[0]))
+
     let fileContent = fs.readFileSync("last.json", "utf8");
     const lastDate = JSON.parse(fileContent).lastDate
     const trueRooms = []
@@ -82,6 +84,13 @@ bot.onText(/\/boost/, async (msg) => {
   }
 });
 
+bot.onText(/\/last/, async (msg) => {
+  const chatId = msg.chat.id;
+  const lastRoom = fs.readFileSync("lastRoom.json", "utf8");
+  await helpSendMessage(chatId, helpBuildString(...helpRoom(lastRoom))
+  )
+})
+
 async function helpInterval(chatId) {
   const trueRooms = await makeRequest() || []
   if(!trueRooms.length) {
@@ -104,6 +113,7 @@ function helpRoom(room) {
     "Кол-во комнат: " + (room?.ad_parameters[9].vl || '-'),
     "Адрес: " + (room?.account_parameters.at(-1)?.v || '-'),
     "Тип валюты: " + (room?.currency || '-'),
+    "Дата: " + (new Date(room.list_time) || '-'),
     "Стоимость: " + (room?.price_byn.slice(0, -2) || '-') + " BYN, " +
       (room?.price_usd.slice(0, -2) || '-') + "$",
     "\n" + (room?.subject || '-')
