@@ -46,9 +46,9 @@ bot.on('text', async msg => {
 })
 
 bot.onText(/\/start/, async (msg) => {
-  const chatId = msg.chat.id;// 30 * 60 * 1000
+  const chatId = msg.chat.id; 10 * 1000
   await helpSendMessage(chatId, helpBuildString(...RES_START), "HTML")
-  setInterval(helpInterval, 10 * 1000, chatId)
+  setInterval(helpInterval, 30 * 60 * 1000, chatId)
 });
 
 bot.onText(/\/link/, async (msg) => {
