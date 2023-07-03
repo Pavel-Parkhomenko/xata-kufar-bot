@@ -112,3 +112,5 @@ async function helpSendMessage(chatId, response, mode="") {
 }
 
 await bot.setMyCommands(COMMANDS);
+
+//test
