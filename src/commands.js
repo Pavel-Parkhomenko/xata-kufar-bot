@@ -8,6 +8,10 @@ export const COMMANDS = [
     description: "Получить пригласительную ссылку"
   },
   {
+    command: "boost",
+    description: "Посмотреть последние квартиры"
+  },
+  {
     command: "donat",
     description: "Раздел помощи разработчику"
   },

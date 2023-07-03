@@ -10,6 +10,9 @@ config()
 const url = 'https://cre-api.kufar.by/ads-search/v1/engine/v1/search/rendered-paginated?' +
   'cat=1010&size=20&lang=ru&rgn=2&sort=lst.d&typ=let'
 
+const urlLast = 'https://cre-api.kufar.by/ads-search/v1/engine/v1/search/rendered-paginated?' +
+  'cat=1010&size=1&lang=ru&rgn=2&sort=lst.d&typ=let'
+
 async function makeRequest() {
   try {
     const response = await axios.get(url);
@@ -48,7 +51,7 @@ bot.on('text', async msg => {
 bot.onText(/\/start/, async (msg) => {
   const chatId = msg.chat.id; 10 * 1000
   await helpSendMessage(chatId, helpBuildString(...RES_START), "HTML")
-  setInterval(helpInterval, 30 * 60 * 1000, chatId)
+  setInterval(helpInterval, 5 * 60 * 1000, chatId)
 });
 
 bot.onText(/\/link/, async (msg) => {
@@ -65,6 +68,21 @@ bot.onText(/\/donat/, async (msg) => {
     chatId,
     helpBuildString("На пиво и орешки", '4916 9896 9481 9027', '04/27')
   )
+});
+
+bot.onText(/\/boost/, async (msg) => {
+  const chatId = msg.chat.id;
+  const trueRooms = await makeRequest() || []
+  if(!trueRooms.length) {
+    await helpSendMessage(chatId, "Свежих квартир пока нет")
+  } else {
+    trueRooms.forEach(item =>
+      helpSendMessage(
+        chatId,
+        helpBuildString(...helpRoom(item))
+      )
+    )
+  }
 });
 
 async function helpInterval(chatId) {
