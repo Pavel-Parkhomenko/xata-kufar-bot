@@ -19,4 +19,8 @@ export const COMMANDS = [
     command: "donat",
     description: "Раздел помощи разработчику"
   },
+  {
+    command: "about",
+    description: "Забыл кто я такой?"
+  },
 ]
