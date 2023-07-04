@@ -22,8 +22,6 @@ async function makeRequest() {
     const response = await axios.get(url)
     const rooms = ((await response.data).ads).reverse()
 
-    fs.writeFileSync("lastRoom.json", JSON.stringify(rooms.at(-1)))
-
     let fileContent = fs.readFileSync("last.json", "utf8");
     const lastDate = JSON.parse(fileContent).lastDate
     let trueRooms = []
@@ -38,6 +36,7 @@ async function makeRequest() {
       fs.writeFileSync("last.json", JSON.stringify({
         lastDate: trueRooms.at(-1).list_time
       }))
+      fs.writeFileSync("lastRoom.json", JSON.stringify(rooms.at(-1)))
     }
     return trueRooms
   } catch (error) {
@@ -119,7 +118,7 @@ async function helpInterval(chatId) {
   }
 }
 
-function helpRoom(room) {
+function helpRoom(room, isNew = false) {
   return [
     (room?.ad_link || '-') + "\n",
     "🏙",
@@ -152,10 +151,20 @@ async function helpSendMessage(chatId, response, mode="") {
 }
 
 async function helpSendMoreMessage(trueRooms, chatId, mode="") {
-  const requests = trueRooms.map(item => bot.sendMessage(chatId, helpBuildString(...helpRoom(item)), {
-      parse_mode: mode
+  const requests = trueRooms.map((item, ind) => {
+    if(ind === 0) {
+      helpSendMessage(chatId, "🆕")
+      return bot.sendMessage(chatId, helpBuildString(...helpRoom(item, true)), {
+          parse_mode: mode
+        }
+      )
+    } else {
+      return bot.sendMessage(chatId, helpBuildString(...helpRoom(item)), {
+          parse_mode: mode
+        }
+      )
     }
-  ))
+  })
   Promise.all(requests)
 }
 
