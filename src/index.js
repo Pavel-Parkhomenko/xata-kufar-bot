@@ -36,7 +36,7 @@ async function makeRequest() {
       fs.writeFileSync("last.json", JSON.stringify({
         lastDate: trueRooms.at(-1).list_time
       }))
-      fs.writeFileSync("lastRoom.json", JSON.stringify(rooms.at(-1)))
+      fs.writeFileSync("lastRoom.json", JSON.stringify(trueRooms.at(-1)))
     }
     return trueRooms
   } catch (error) {
@@ -65,7 +65,7 @@ bot.onText(/\/link/, async (msg) => {
   const chatId = msg.chat.id;
   helpSendMessage(
     chatId,
-    helpBuildString("Поделись и будет счастье", 'https://t.me/xata_kufar_bot')
+    helpBuildString("Поделись и будет счастье 🥳", 'https://t.me/xata_kufar_bot')
   )
 });
 
@@ -73,7 +73,7 @@ bot.onText(/\/donat/, async (msg) => {
   const chatId = msg.chat.id;
   helpSendMessage(
     chatId,
-    helpBuildString("На пиво и орешки", '4916 9896 9481 9027', '04/27')
+    helpBuildString("На пиво и орешки 🍺", '4916 9896 9481 9027', '04/27')
   )
 });
 
@@ -81,7 +81,7 @@ bot.onText(/\/boost/, async (msg) => {
   const chatId = msg.chat.id;
   const trueRooms = await makeRequest() || []
   if(!trueRooms.length) {
-    helpSendMessage(chatId, "Свежих квартир пока нет")
+    helpSendMessage(chatId, "Свежих квартир пока нет ☹️")
   } else {
     helpSendMoreMessage(trueRooms, chatId, "HTML")
   }
@@ -91,7 +91,7 @@ bot.onText(/\/last/, async (msg) => {
   const chatId = msg.chat.id;
   const lastRoom = fs.readFileSync("lastRoom.json", "utf8");
   if(!lastRoom) {
-    helpSendMessage(chatId, "Последней квартиры ещё нет")
+    helpSendMessage(chatId, "Последней квартиры ещё нет ☹️")
   }
   else {
     helpSendMessage(chatId, helpBuildString(...helpRoom(JSON.parse(lastRoom))), "HTML")
@@ -106,7 +106,7 @@ bot.onText(/\/about/, async (msg) => {
 async function helpInterval(chatId) {
   const trueRooms = await makeRequest() || []
   if(!trueRooms.length) {
-    helpSendMessage(chatId, "Я не сломался, просто квартир нет")
+    helpSendMessage(chatId, "Я не сломался, просто квартир нет 🌆")
   } else {
     for(let i = 0; i < trueRooms.length; i++) {
       helpSendMessage(
