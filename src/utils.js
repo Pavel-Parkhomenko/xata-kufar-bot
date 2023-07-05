@@ -14,7 +14,6 @@ export function toLocaleDateAndTime(date) {
 
 export function cityOnlyGomel(room) {
   const address = room?.account_parameters.at(-1)?.v || 'Гомель'
-  // return address.indexOf('Гомель') !== -1;
   const arrAddress = address.split(/[,\s]+/);
   const word = 'Гомель'
 
@@ -59,4 +58,12 @@ export function fixRooms(room = null) {
     }
   }
   return foundInd
+}
+
+export function rentOnlyLongTime(room) {
+  const rentType = fixTypeRent(room?.ad_parameters)
+  if(rentType === 'Долгосрочная аренда') {
+    return room
+  }
+  return false
 }

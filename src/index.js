@@ -9,7 +9,8 @@ import {
   toLocaleDateAndTime,
   fixCategory,
   fixTypeRent,
-  fixRooms
+  fixRooms,
+  rentOnlyLongTime
 } from './utils.js'
 
 config()
@@ -17,7 +18,7 @@ config()
 const url = 'https://cre-api.kufar.by/ads-search/v1/engine/v1/search/rendered-paginated?' +
   'cat=1010&size=20&lang=ru&rgn=2&sort=lst.d&typ=let'
 
-async function makeRequest() {
+async function makeRequest(isStart = false) {
   try {
     const response = await axios.get(url)
     const rooms = ((await response.data).ads).reverse()
@@ -27,8 +28,14 @@ async function makeRequest() {
     let trueRooms = []
 
     for(let i = 0; i < rooms.length; i++) {
-      if(new Date(lastDate).getTime() < new Date(rooms[i].list_time).getTime() && cityOnlyGomel(rooms[i])) {
-        trueRooms.push(rooms[i])
+      if(cityOnlyGomel(rooms[i]) && rentOnlyLongTime(rooms[i])) {
+        if(!isStart){
+          if(new Date(lastDate).getTime() < new Date(rooms[i].list_time).getTime()) {
+            trueRooms.push(rooms[i])
+          }
+        } else {
+          trueRooms.push(rooms[i])
+        }
       }
     }
 
@@ -57,8 +64,11 @@ bot.on('text', async msg => {
 bot.onText(/\/start/, async (msg) => {
   const chatId = msg.chat.id;
   helpSendMessage(chatId, helpBuildString(...RES_START), "HTML")
+  const trueRooms = await makeRequest(true) || []
+  if(trueRooms.length) {
+    helpSendMoreMessage(trueRooms, chatId, "HTML") //30 * 60 * 1000
+  }
   setInterval(helpInterval, 30 * 60 * 1000, chatId)
-  makeRequest()
 });
 
 bot.onText(/\/link/, async (msg) => {
@@ -79,7 +89,8 @@ bot.onText(/\/donat/, async (msg) => {
 
 bot.onText(/\/boost/, async (msg) => {
   const chatId = msg.chat.id;
-  const trueRooms = await makeRequest() || []
+  const trueRooms = await makeRequest(true) || []
+  console.log('boost', trueRooms.length)
   if(!trueRooms.length) {
     helpSendMessage(chatId, "Свежих квартир пока нет ☹️")
   } else {
@@ -105,16 +116,8 @@ bot.onText(/\/about/, async (msg) => {
 
 async function helpInterval(chatId) {
   const trueRooms = await makeRequest() || []
-  if(!trueRooms.length) {
-    helpSendMessage(chatId, "Я не сломался, просто квартир нет 🌆")
-  } else {
-    for(let i = 0; i < trueRooms.length; i++) {
-      helpSendMessage(
-        chatId,
-        helpBuildString(...helpRoom(trueRooms[i])),
-        "HTML"
-      )
-    }
+  if(trueRooms.length) {
+    helpSendMoreMessage(trueRooms, chatId, "HTML")
   }
 }
 
@@ -123,7 +126,7 @@ function helpRoom(room, isNew = false) {
     (room?.ad_link || '-') + "\n",
     "🏙",
     "<i>Категория</i>:  " + "Квартиры",
-    "<i>Тип аренды:</i>  " + fixTypeRent(room?.ad_parameters),
+    "<i>Тип аренды:</i>  " + "Долгосрочная аренда",
     "<i>Кол-во комнат:</i>  " + fixRooms(room?.ad_parameters),
     "<i>Адрес:</i>  " + (room?.account_parameters.at(-1)?.v || '-'),
     "<i>Тип валюты:</i>  " + (room?.currency || '-'),
@@ -154,16 +157,11 @@ async function helpSendMoreMessage(trueRooms, chatId, mode="") {
   const requests = trueRooms.map((item, ind) => {
     if(ind === 0) {
       helpSendMessage(chatId, "🆕")
-      return bot.sendMessage(chatId, helpBuildString(...helpRoom(item, true)), {
-          parse_mode: mode
-        }
-      )
-    } else {
-      return bot.sendMessage(chatId, helpBuildString(...helpRoom(item)), {
-          parse_mode: mode
-        }
-      )
     }
+    return bot.sendMessage(chatId, helpBuildString(...helpRoom(item, true)), {
+        parse_mode: mode
+      }
+    )
   })
   Promise.all(requests)
 }
